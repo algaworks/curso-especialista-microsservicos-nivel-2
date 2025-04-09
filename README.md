@@ -1,1 +1,2 @@
-# curso-especialista-microsservicos-nivel-2
+# Especialista Microsserviços Nível 2
+Aulas com projeto do curso AlgaWorks Especialista Microsserviços Nível 2
