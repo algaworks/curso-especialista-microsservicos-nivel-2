@@ -1,7 +1,6 @@
 package com.algaworks.algashop.ordering.domain.model.entity;
 
 import com.algaworks.algashop.ordering.domain.model.valueobject.Money;
-import com.algaworks.algashop.ordering.domain.model.valueobject.Product;
 import com.algaworks.algashop.ordering.domain.model.valueobject.ProductName;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Quantity;
 import com.algaworks.algashop.ordering.domain.model.valueobject.id.ProductId;
@@ -55,12 +54,11 @@ class ShoppingCartItemTest {
                 .quantity(new Quantity(2))
                 .build();
 
-        Product product = ProductTestDataBuilder.aProduct().build();
-        item.refresh(product);
+        item.changePrice(new Money("1800"));
 
         Assertions.assertWith(item,
-                i -> Assertions.assertThat(i.price()).isEqualTo(product.price()),
-                i -> Assertions.assertThat(i.totalAmount()).isEqualTo(product.price().multiply(new Quantity(2)))
+                i -> Assertions.assertThat(i.price()).isEqualTo(new Money("1800")),
+                i -> Assertions.assertThat(i.totalAmount()).isEqualTo(new Money("3600"))
         );
     }
 
@@ -70,11 +68,7 @@ class ShoppingCartItemTest {
                 .available(true)
                 .build();
 
-        Product product = ProductTestDataBuilder.aProduct()
-                .inStock(false)
-                .build();
-
-        item.refresh(product);
+        item.changeAvailability(false);
 
         Assertions.assertThat(item.isAvailable()).isFalse();
     }
