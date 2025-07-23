@@ -59,7 +59,7 @@ public class ShoppingCartPersistenceEntity {
 		this.totalAmount = totalAmount;
 		this.totalItems = totalItems;
 		this.createdAt = createdAt;
-		this.addItem(items);
+		this.replaceItems(items);
 	}
 
 	public void addItem(Set<ShoppingCartItemPersistenceEntity> items) {
@@ -84,5 +84,15 @@ public class ShoppingCartPersistenceEntity {
 			return null;
 		}
 		return customer.getId();
+	}
+
+	public void replaceItems(Set<ShoppingCartItemPersistenceEntity> updatedItems) {
+		if (updatedItems == null || updatedItems.isEmpty()) {
+			this.setItems(new HashSet<>());
+			return;
+		}
+
+		updatedItems.forEach(i -> i.setShoppingCart(this));
+		this.setItems(updatedItems);
 	}
 }

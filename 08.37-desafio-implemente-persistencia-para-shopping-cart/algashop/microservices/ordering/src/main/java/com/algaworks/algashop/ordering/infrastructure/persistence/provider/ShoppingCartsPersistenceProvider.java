@@ -82,7 +82,7 @@ public class ShoppingCartsPersistenceProvider implements ShoppingCarts {
 	@Override
 	@Transactional(readOnly = false)
 	public void remove(ShoppingCart shoppingCart) {
-		this.persistenceRepository.delete(assembler.fromDomain(shoppingCart));
+		this.persistenceRepository.deleteById(shoppingCart.id().value());
 	}
 
 	@Override
