@@ -1,29 +1,25 @@
-package com.algaworks.algashop.ordering.application.shoppingcart.query;
+package com.algaworks.algashop.ordering.application.customer.query;
 
 import com.algaworks.algashop.ordering.application.utility.SortablePageFilter;
 import lombok.*;
 import org.springframework.data.domain.Sort;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingCartFilter
-        extends SortablePageFilter<ShoppingCartFilter.SortType> {
-    private UUID customerId;
-    private BigDecimal totalAmountFrom;
-    private BigDecimal totalAmountTo;
+public class CustomerFilter
+        extends SortablePageFilter<CustomerFilter.SortType> {
+    private String email;
+    private String firstName;
 
-    public ShoppingCartFilter(int size, int page) {
+    public CustomerFilter(int size, int page) {
         super(size, page);
     }
 
     @Override
     public SortType getSortByPropertyOrDefault() {
-        return getSortByProperty() == null ? SortType.CREATED_AT : getSortByProperty();
+        return getSortByProperty() == null ? SortType.REGISTERED_AT : getSortByProperty();
     }
 
     @Override
@@ -34,8 +30,8 @@ public class ShoppingCartFilter
     @Getter
     @RequiredArgsConstructor
     public enum SortType {
-        CREATED_AT("createdAt"),
-        TOTAL_AMOUNT("totalAmount");
+        REGISTERED_AT("registeredAt"),
+        FIRST_NAME("firstName");
 
         private final String propertyName;
     }
