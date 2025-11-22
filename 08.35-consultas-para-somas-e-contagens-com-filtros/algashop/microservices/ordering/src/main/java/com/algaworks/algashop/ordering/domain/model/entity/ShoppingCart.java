@@ -1,7 +1,6 @@
 package com.algaworks.algashop.ordering.domain.model.entity;
 
 import com.algaworks.algashop.ordering.domain.model.exception.ShoppingCartDoesNotContainItemException;
-import com.algaworks.algashop.ordering.domain.model.exception.ShoppingCartDoesNotContainProductException;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Money;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Product;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Quantity;
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-public class ShoppingCart {
+public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
     private ShoppingCartId id;
     private CustomerId customerId;
     private Money totalAmount;
@@ -41,9 +40,9 @@ public class ShoppingCart {
     }
 
     public void empty() {
-        items.clear();
-        totalAmount = Money.ZERO;
-        totalItems = Quantity.ZERO;
+        for (ShoppingCartItem item : new HashSet<>(items)) {
+            removeItem(item.id());
+        }
     }
 
     public void removeItem(ShoppingCartItemId shoppingCartItemId) {
@@ -81,17 +80,14 @@ public class ShoppingCart {
                 .orElseThrow(() -> new ShoppingCartDoesNotContainItemException(this.id(), shoppingCartItemId));
     }
 
-    public ShoppingCartItem findItem(ProductId productId) {
-        Objects.requireNonNull(productId);
-        return this.items.stream()
-                .filter(i -> i.productId().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new ShoppingCartDoesNotContainProductException(this.id(), productId));
+    public void changeItemAvailability(ShoppingCartItemId shoppingCartItemId, Boolean inStock) {
+        ShoppingCartItem shoppingCartItem = this.findItem(shoppingCartItemId);
+        shoppingCartItem.changeAvailability(inStock);
     }
 
-    public void refreshItem(Product product) {
-        ShoppingCartItem shoppingCartItem = this.findItem(product.id());
-        shoppingCartItem.refresh(product);
+    public void changeItemPrice(ShoppingCartItemId shoppingCartItemId, Money price) {
+        ShoppingCartItem shoppingCartItem = this.findItem(shoppingCartItemId);
+        shoppingCartItem.changePrice(price);
         this.recalculateTotals();
     }
 
@@ -134,7 +130,8 @@ public class ShoppingCart {
     }
 
     private void updateItem(ShoppingCartItem shoppingCartItem, Product product, Quantity quantity) {
-        shoppingCartItem.refresh(product);
+        shoppingCartItem.changeAvailability(product.inStock());
+        shoppingCartItem.changePrice(product.price());
         shoppingCartItem.changeQuantity(shoppingCartItem.quantity().add(quantity));
     }
 

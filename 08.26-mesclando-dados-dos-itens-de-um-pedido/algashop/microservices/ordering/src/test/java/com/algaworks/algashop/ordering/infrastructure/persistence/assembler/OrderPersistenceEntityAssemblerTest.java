@@ -1,10 +1,17 @@
 package com.algaworks.algashop.ordering.infrastructure.persistence.assembler;
 
 import com.algaworks.algashop.ordering.domain.model.entity.Order;
+import com.algaworks.algashop.ordering.domain.model.entity.OrderItem;
 import com.algaworks.algashop.ordering.domain.model.entity.OrderTestDataBuilder;
+import com.algaworks.algashop.ordering.infrastructure.persistence.entity.OrderItemPersistenceEntity;
 import com.algaworks.algashop.ordering.infrastructure.persistence.entity.OrderPersistenceEntity;
+import com.algaworks.algashop.ordering.infrastructure.persistence.entity.OrderPersistenceEntityTestDataBuilder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,8 +38,53 @@ class OrderPersistenceEntityAssemblerTest {
     }
 
     @Test
-    void shouldMerge() {
+    void givenOrderWithNotItems_shouldRemovePersistenceEntityItems() {
+        Order order = OrderTestDataBuilder.anOrder().withItems(false).build();
+        OrderPersistenceEntity orderPersistenceEntity = OrderPersistenceEntityTestDataBuilder.existingOrder().build();
 
+        Assertions.assertThat(order.items()).isEmpty();
+        Assertions.assertThat(orderPersistenceEntity.getItems()).isNotEmpty();
+
+        assembler.merge(orderPersistenceEntity, order);
+
+        Assertions.assertThat(orderPersistenceEntity.getItems()).isEmpty();
+    }
+
+    @Test
+    void givenOrderWithItems_shouldAddToPersistenceEntity() {
+        Order order = OrderTestDataBuilder.anOrder().withItems(true).build();
+        OrderPersistenceEntity persistenceEntity = OrderPersistenceEntityTestDataBuilder.existingOrder().items(new HashSet<>()).build();
+
+        Assertions.assertThat(order.items()).isNotEmpty();
+        Assertions.assertThat(persistenceEntity.getItems()).isEmpty();
+
+        assembler.merge(persistenceEntity, order);
+
+        Assertions.assertThat(persistenceEntity.getItems()).isNotEmpty();
+        Assertions.assertThat(persistenceEntity.getItems().size()).isEqualTo(order.items().size());
+    }
+
+    @Test
+    void givenOrderWithItems_whenMerge_shouldRemoveMergeCorrectly() {
+        Order order = OrderTestDataBuilder.anOrder().withItems(true).build();
+
+        Assertions.assertThat(order.items().size()).isEqualTo(2);
+
+        Set<OrderItemPersistenceEntity> orderItemPersistenceEntities = order.items().stream()
+                .map(i -> assembler.fromDomain(i))
+                .collect(Collectors.toSet());
+
+        OrderPersistenceEntity persistenceEntity = OrderPersistenceEntityTestDataBuilder.existingOrder()
+                .items(orderItemPersistenceEntities)
+                .build();
+
+        OrderItem orderItem = order.items().iterator().next();
+        order.removeItem(orderItem.id());
+
+        assembler.merge(persistenceEntity, order);
+
+        Assertions.assertThat(persistenceEntity.getItems()).isNotEmpty();
+        Assertions.assertThat(persistenceEntity.getItems().size()).isEqualTo(order.items().size());
     }
 
 }

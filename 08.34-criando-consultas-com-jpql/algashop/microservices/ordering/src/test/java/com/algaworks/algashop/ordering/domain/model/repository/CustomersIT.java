@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -123,9 +122,13 @@ class CustomersIT {
     }
 
     @Test
-    public void shouldNotFindByEmailIfNoCustomerExistsWithEmail() {
-        Optional<Customer> customerOptional = customers.ofEmail(new Email(UUID.randomUUID() + "@email.com"));
-        Assertions.assertThat(customerOptional).isNotPresent();
+    public void shouldReturnIfEmailIsInUse() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        customers.add(customer);
+
+        Assertions.assertThat(customers.isEmailUnique(customer.email(), customer.id())).isTrue();
+        Assertions.assertThat(customers.isEmailUnique(customer.email(), new CustomerId())).isFalse();
+        Assertions.assertThat(customers.isEmailUnique(new Email("alex@gmail.com"), new CustomerId())).isTrue();
     }
 
  }

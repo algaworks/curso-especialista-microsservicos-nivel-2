@@ -1,5 +1,7 @@
 package com.algaworks.algashop.ordering.infrastructure.persistence.entity;
 
+import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.BillingEmbeddable;
+import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.ShippingEmbeddable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;

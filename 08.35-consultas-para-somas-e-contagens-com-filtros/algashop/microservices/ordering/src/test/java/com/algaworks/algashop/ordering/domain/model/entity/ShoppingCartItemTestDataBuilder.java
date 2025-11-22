@@ -8,8 +8,8 @@ import com.algaworks.algashop.ordering.domain.model.valueobject.id.ShoppingCartI
 
 public class ShoppingCartItemTestDataBuilder {
 
-    private ShoppingCartId shoppingCartId = ShoppingCartTestDataBuilder.DEFAULT_SHOPPING_CART_ID;
-    private ProductId productId = ProductTestDataBuilder.DEFAULT_PRODUCT_ID;
+    private ShoppingCartId shoppingCartId = new ShoppingCartId();
+    private ProductId productId = new ProductId();
     private ProductName productName = new ProductName("Notebook");
     private Money price = new Money("1000");
     private Quantity quantity = new Quantity(1);

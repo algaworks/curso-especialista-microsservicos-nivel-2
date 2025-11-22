@@ -110,4 +110,24 @@ class CustomersIT {
         Assertions.assertThat(customers.exists(new CustomerId())).isFalse();
     }
 
+    @Test
+    public void shouldFindByEmail() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        customers.add(customer);
+
+        Optional<Customer> customerOptional = customers.ofEmail(customer.email());
+
+        Assertions.assertThat(customerOptional).isPresent();
+    }
+
+    @Test
+    public void shouldReturnIfEmailIsInUse() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        customers.add(customer);
+
+        Assertions.assertThat(customers.isEmailUnique(customer.email(), customer.id())).isTrue();
+        Assertions.assertThat(customers.isEmailUnique(customer.email(), new CustomerId())).isFalse();
+        Assertions.assertThat(customers.isEmailUnique(new Email("alex@gmail.com"), new CustomerId())).isTrue();
+    }
+
  }

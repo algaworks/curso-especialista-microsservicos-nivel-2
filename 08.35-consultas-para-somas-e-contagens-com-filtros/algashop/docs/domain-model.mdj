@@ -8523,7 +8523,8 @@
 									"_parent": {
 										"$ref": "AAAAAAGXjZbxCFV3sc0="
 									},
-									"name": "shoppingCartId"
+									"name": "shoppingCartId",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
