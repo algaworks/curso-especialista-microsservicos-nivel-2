@@ -33,7 +33,7 @@ public record Money(BigDecimal value) implements Comparable<Money> {
 
     public Money add(Money money) {
         Objects.requireNonNull(money);
-        return new Money(this.value.add(money.value));
+        return new Money(this.value.add(money.value()));
     }
 
     @Override
