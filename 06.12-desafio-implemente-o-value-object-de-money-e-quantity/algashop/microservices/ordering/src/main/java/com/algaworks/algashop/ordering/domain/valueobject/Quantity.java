@@ -1,9 +1,8 @@
 package com.algaworks.algashop.ordering.domain.valueobject;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public record Quantity(Integer value) implements Serializable, Comparable<Quantity> {
+public record Quantity(Integer value) implements Comparable<Quantity> {
 	public static final Quantity ZERO = new Quantity(0);
 
 	public Quantity {
