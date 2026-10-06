@@ -1,6 +1,7 @@
 package com.algaworks.algashop.ordering.application.customer.management;
 
 import com.algaworks.algashop.ordering.domain.model.customer.CustomerArchivedException;
+import com.algaworks.algashop.ordering.domain.model.customer.CustomerEmailIsInUseException;
 import com.algaworks.algashop.ordering.domain.model.customer.CustomerNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -130,6 +131,58 @@ class CustomerManagementApplicationServiceIT {
 
         Assertions.assertThatExceptionOfType(CustomerArchivedException.class)
                 .isThrownBy(() -> customerManagementApplicationService.archive(customerId));
+    }
+
+    @Test
+    public void shouldChangeEmail() {
+        CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
+        UUID customerId = customerManagementApplicationService.create(input);
+        String newEmail = "john.doe@newemail.com";
+
+        customerManagementApplicationService.changeEmail(customerId, newEmail);
+
+        CustomerOutput customerOutput = customerManagementApplicationService.findById(customerId);
+        Assertions.assertThat(customerOutput.getEmail()).isEqualTo(newEmail);
+    }
+
+    @Test
+    public void shouldThrowCustomerNotFoundExceptionWhenChangingEmailOfNonExistingCustomer() {
+        UUID nonExistingId = UUID.randomUUID();
+
+        Assertions.assertThatExceptionOfType(CustomerNotFoundException.class)
+                .isThrownBy(() -> customerManagementApplicationService.changeEmail(nonExistingId, "new@email.com"));
+    }
+
+    @Test
+    public void shouldThrowCustomerArchivedExceptionWhenChangingEmailOfArchivedCustomer() {
+        CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
+        UUID customerId = customerManagementApplicationService.create(input);
+        customerManagementApplicationService.archive(customerId);
+
+        Assertions.assertThatExceptionOfType(CustomerArchivedException.class)
+                .isThrownBy(() -> customerManagementApplicationService.changeEmail(customerId, "new@email.com"));
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionWhenChangingEmailToInvalidFormat() {
+        CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
+        UUID customerId = customerManagementApplicationService.create(input);
+
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> customerManagementApplicationService.changeEmail(customerId, "email-invalido"));
+    }
+
+    @Test
+    public void shouldThrowCustomerEmailIsInUseExceptionWhenChangingEmailToExistingEmail() {
+        CustomerInput firstInput = CustomerInputTestDataBuilder.aCustomer().build();
+        CustomerInput secondInput = CustomerInputTestDataBuilder.aCustomer()
+                .email("janedoe@email.com")
+                .build();
+        UUID firstCustomerId = customerManagementApplicationService.create(firstInput);
+        customerManagementApplicationService.create(secondInput);
+
+        Assertions.assertThatExceptionOfType(CustomerEmailIsInUseException.class)
+                .isThrownBy(() -> customerManagementApplicationService.changeEmail(firstCustomerId, secondInput.getEmail()));
     }
 
 }
