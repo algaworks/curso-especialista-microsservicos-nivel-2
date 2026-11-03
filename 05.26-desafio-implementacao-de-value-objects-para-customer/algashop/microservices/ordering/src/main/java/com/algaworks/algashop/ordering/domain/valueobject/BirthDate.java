@@ -16,7 +16,7 @@ public record BirthDate(LocalDate value) {
 	}
 	
 	public Integer age() {
-		return (int) Duration.between(value, LocalDate.now()).toDays();
+		return Period.between(this.value, LocalDate.now()).getYears();
 	}
 
 	@Override
